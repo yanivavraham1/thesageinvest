@@ -1,4 +1,5 @@
-import { Post, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { Post } from "./types";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -154,4 +155,50 @@ export async function createPost(
       },
     },
   });
+}
+export async function searchPosts({
+  searchFilter = "",
+  limit = 50,
+  offset = 0,
+} = {}) {
+  try {
+    const whereClause = searchFilter
+      ? {
+          OR: [
+            {
+              title: {
+                contains: searchFilter,
+                mode: "insensitive",
+              },
+            },
+            {
+              description: {
+                contains: searchFilter,
+                mode: "insensitive",
+              },
+            },
+            {
+              keywords: {
+                contains: searchFilter,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {};
+
+    const posts = await prisma.post.findMany({
+      where: whereClause,
+      orderBy: {
+        createdAt: "desc", // Assuming you have a createdAt field
+      },
+      take: limit,
+      skip: offset,
+    });
+
+    return posts;
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    throw new Error("Failed to fetch posts");
+  }
 }
