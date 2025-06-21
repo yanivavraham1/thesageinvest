@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import {
   Select,
   SelectContent,
@@ -7,16 +7,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Plus,
-  Trash2,
-  ChevronUp,
-  ChevronDown,
-  Upload,
-  FileText,
-} from "lucide-react";
+import { Plus, Trash2, ChevronUp, ChevronDown, Upload } from "lucide-react";
+// Type definitions
+interface ComponentField {
+  name: string;
+  label: string;
+  type: string;
+  input: string;
+}
 
-const components = [
+interface ComponentProp {
+  name: string;
+  label: string;
+  type: string;
+  input: string;
+  options?: string[];
+  fields?: ComponentField[];
+}
+
+interface ComponentDefinition {
+  component: string;
+  props: ComponentProp[];
+}
+
+// Types for form data and state
+
+type DynamicArrayValue = { [key: string]: Record<string, string> };
+type FormDataState = Record<string, string | number | DynamicArrayValue>;
+type MdxComponentList = string[];
+type MetadataState = Record<string, string>;
+
+type Direction = "up" | "down";
+
+const components: ComponentDefinition[] = [
   {
     component: "PostImage",
     props: [
@@ -156,56 +179,63 @@ const components = [
 ];
 
 export default function MdxForm() {
-  const [selectedComponent, setSelectedComponent] = useState("");
-  const [formData, setFormData] = useState({});
-  const [mdxComponents, setMdxComponents] = useState([]);
-  const [loadedMetadata, setLoadedMetadata] = useState({});
-  const [parseError, setParseError] = useState("");
-  const fileInputRef = useRef(null);
+  const [selectedComponent, setSelectedComponent] = useState<string>("");
+  const [formData, setFormData] = useState<FormDataState>({});
+  const [mdxComponents, setMdxComponents] = useState<MdxComponentList>([]);
+  const [loadedMetadata, setLoadedMetadata] = useState<MetadataState>({});
+  const [parseError, setParseError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleComponentSelect = (componentName) => {
+  const handleComponentSelect = (componentName: string) => {
     setSelectedComponent(componentName);
     setFormData({});
   };
 
-  const handleInputChange = (propName, value) => {
+  const handleInputChange = (propName: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [propName]: value,
     }));
   };
 
-  const handleArrayChange = (propName, index, fieldName, value) => {
+  const handleArrayChange = (
+    propName: string,
+    index: string | number,
+    fieldName: string,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [propName]: {
-        ...prev[propName],
+        ...(prev[propName] as DynamicArrayValue),
         [index]: {
-          ...prev[propName]?.[index],
+          ...((prev[propName] as DynamicArrayValue)?.[index] || {}),
           [fieldName]: value,
         },
       },
     }));
   };
 
-  const addArrayItem = (propName) => {
-    const currentArray = formData[propName] || {};
+  const addArrayItem = (propName: string) => {
+    const currentArray = (formData[propName] as DynamicArrayValue) || {};
     const nextIndex = Object.keys(currentArray).length;
     setFormData((prev) => ({
       ...prev,
       [propName]: {
-        ...prev[propName],
+        ...(prev[propName] as DynamicArrayValue),
         [nextIndex]: {},
       },
     }));
   };
 
-  const removeArrayItem = (propName, index) => {
+  const removeArrayItem = (propName: string, index: string | number) => {
     setFormData((prev) => {
-      const newArray = { ...prev[propName] };
+      const newArray: { [key: string]: Record<string, string> } = {
+        ...(prev[propName] as DynamicArrayValue),
+      };
       delete newArray[index];
       // Reindex the array
-      const reindexed = {};
+      const reindexed: { [key: string]: Record<string, string> } = {};
       Object.values(newArray).forEach((item, i) => {
         reindexed[i] = item;
       });
@@ -216,13 +246,13 @@ export default function MdxForm() {
     });
   };
 
-  const parseMdxFile = (content) => {
+  const parseMdxFile = (content: string) => {
     try {
       setParseError("");
 
       // Extract frontmatter
       const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      const metadata = {};
+      const metadata: MetadataState = {};
 
       if (frontmatterMatch) {
         const frontmatterContent = frontmatterMatch[1];
@@ -240,9 +270,9 @@ export default function MdxForm() {
       bodyContent = bodyContent.replace(/^import\s+.*?from\s+.*?;\n*/gm, "");
 
       // Parse components
-      const componentRegex = /<(\w+)([^>]*?)\/>/g;
-      const parsedComponents = [];
-      let match;
+      const componentRegex = /<\w+([^>]*?)\/>/g;
+      const parsedComponents: string[] = [];
+      let match: RegExpExecArray | null;
 
       while ((match = componentRegex.exec(bodyContent)) !== null) {
         const componentName = match[1];
@@ -258,10 +288,10 @@ export default function MdxForm() {
         }
 
         // Parse props
-        const props = {};
+        const props: Record<string, unknown> = {};
         if (propsString) {
           // Match prop="value" or prop={value} patterns
-          const propRegex = /(\w+)=(?:"([^"]*)"|{([^}]*)})/g;
+          const propRegex = /(\w+)=(:?"([^"]*)"|{([^}]*)})/g;
           let propMatch;
 
           while ((propMatch = propRegex.exec(propsString)) !== null) {
@@ -279,6 +309,7 @@ export default function MdxForm() {
               }
             } catch (e) {
               props[propName] = propValue;
+              console.log(e);
             }
           }
         }
@@ -313,13 +344,17 @@ export default function MdxForm() {
         );
       }
     } catch (error) {
-      setParseError(`Error parsing MDX file: ${error.message}`);
+      setParseError(
+        `Error parsing MDX file: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
       console.error("Parse error:", error);
     }
   };
 
-  const handleFileLoad = (event) => {
-    const file = event.target.files[0];
+  const handleFileLoad = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.name.endsWith(".mdx") && !file.name.endsWith(".md")) {
@@ -329,13 +364,17 @@ export default function MdxForm() {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target.result;
-      parseMdxFile(content);
+      const content = e.target?.result;
+      if (typeof content === "string") {
+        parseMdxFile(content);
+      }
     };
     reader.readAsText(file);
 
     // Reset file input
-    event.target.value = "";
+    if (event.target) {
+      event.target.value = "";
+    }
   };
 
   const addComponent = () => {
@@ -343,7 +382,7 @@ export default function MdxForm() {
     if (!component) return;
 
     const props = Object.entries(formData)
-      .filter(([_, value]) => value !== "" && value !== undefined)
+      .filter(([, value]) => value !== "" && value !== undefined)
       .map(([key, value]) => {
         const propDef = component.props.find((p) => p.name === key);
 
@@ -384,11 +423,11 @@ export default function MdxForm() {
     setSelectedComponent("");
   };
 
-  const removeComponent = (index) => {
-    setMdxComponents((prev) => prev.filter((_, i) => i !== index));
+  const removeComponent = (index: number) => {
+    setMdxComponents((prev) => prev.filter((__, i) => i !== index));
   };
 
-  const moveComponent = (index, direction) => {
+  const moveComponent = (index: number, direction: Direction) => {
     setMdxComponents((prev) => {
       const newComponents = [...prev];
       const targetIndex = direction === "up" ? index - 1 : index + 1;
@@ -442,29 +481,40 @@ ${Object.entries(metadata)
     return `${frontmatter}${imports ? imports + "\n\n" : ""}${content}`;
   };
 
-  const renderInput = (prop) => {
-    const value = formData[prop.name] || "";
-
-    const commonProps = {
-      id: prop.name,
-      value: value,
-      onChange: (e) => handleInputChange(prop.name, e.target.value),
-      className:
-        "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-    };
+  const renderInput = (prop: ComponentProp) => {
+    // Only allow string or number for value
+    let value: string | number = "";
+    if (
+      typeof formData[prop.name] === "string" ||
+      typeof formData[prop.name] === "number"
+    ) {
+      value = formData[prop.name] as string | number;
+    }
 
     switch (prop.input) {
       case "textarea":
         return (
           <textarea
-            {...commonProps}
+            id={prop.name}
+            value={value}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+              handleInputChange(prop.name, e.target.value)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={3}
             placeholder={`Enter ${prop.label.toLowerCase()}`}
           />
         );
       case "select":
         return (
-          <select {...commonProps}>
+          <select
+            id={prop.name}
+            value={value}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              handleInputChange(prop.name, e.target.value)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
             <option value="">Select an option</option>
             {prop.options?.map((option) => (
               <option key={option} value={option}>
@@ -478,7 +528,12 @@ ${Object.entries(metadata)
       case "input":
         return (
           <input
-            {...commonProps}
+            id={prop.name}
+            value={value}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              handleInputChange(prop.name, e.target.value)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             type={prop.type === "number" ? "number" : "text"}
             placeholder={`Enter ${prop.label.toLowerCase()}`}
           />
@@ -486,7 +541,12 @@ ${Object.entries(metadata)
       default:
         return (
           <input
-            {...commonProps}
+            id={prop.name}
+            value={value}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              handleInputChange(prop.name, e.target.value)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             type="text"
             placeholder={`Enter ${prop.label.toLowerCase()}`}
           />
@@ -494,71 +554,75 @@ ${Object.entries(metadata)
     }
   };
 
-  const renderDynamicArray = (prop) => {
-    const arrayData = formData[prop.name] || {};
+  const renderDynamicArray = (prop: ComponentProp) => {
+    const arrayData: DynamicArrayValue =
+      (formData[prop.name] as DynamicArrayValue) || {};
     const items = Object.entries(arrayData);
 
     return (
       <div className="space-y-3">
-        {items.map(([index, item]) => (
-          <div
-            key={index}
-            className="border border-gray-200 rounded-lg p-4 bg-gray-50"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="font-medium text-sm text-gray-700">
-                Item {parseInt(index) + 1}
-              </h4>
-              <button
-                type="button"
-                onClick={() => removeArrayItem(prop.name, index)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+        {items.map(([index, itemObj]) => {
+          const item: Record<string, string> = itemObj;
+          return (
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium text-sm text-gray-700">
+                  Item {parseInt(index) + 1}
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => removeArrayItem(prop.name, index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {prop.fields?.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {field.label}
+                    </label>
+                    {field.input === "textarea" ? (
+                      <textarea
+                        value={item[field.name] || ""}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                          handleArrayChange(
+                            prop.name,
+                            index,
+                            field.name,
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        rows={2}
+                        placeholder={`Enter ${field.label.toLowerCase()}`}
+                      />
+                    ) : (
+                      <input
+                        type={field.type === "number" ? "number" : "text"}
+                        value={item[field.name] || ""}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          handleArrayChange(
+                            prop.name,
+                            index,
+                            field.name,
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder={`Enter ${field.label.toLowerCase()}`}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-3">
-              {prop.fields?.map((field) => (
-                <div key={field.name}>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    {field.label}
-                  </label>
-                  {field.input === "textarea" ? (
-                    <textarea
-                      value={item[field.name] || ""}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          prop.name,
-                          index,
-                          field.name,
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      rows={2}
-                      placeholder={`Enter ${field.label.toLowerCase()}`}
-                    />
-                  ) : (
-                    <input
-                      type={field.type === "number" ? "number" : "text"}
-                      value={item[field.name] || ""}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          prop.name,
-                          index,
-                          field.name,
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder={`Enter ${field.label.toLowerCase()}`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
         <button
           type="button"
           onClick={() => addArrayItem(prop.name)}
