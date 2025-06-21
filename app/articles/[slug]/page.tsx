@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { getPostBySlug, prisma } from "@/lib/prisma";
 import { Metadata } from "next";
-import { ReadingProgress } from "@/components/article/components/reading-progress";
+//import { ReadingProgress } from "@/components/article/components/reading-progress";
 import { ShareButtons } from "@/components/article/components/share-buttons";
 import { MDXRemote } from "next-mdx-remote/rsc"; // Use RSC version
 import { getPostMDX } from "@/lib/mdx-loader";
@@ -83,7 +83,6 @@ export default async function PostPage(props: { params: tParams }) {
 
   return (
     <>
-      <ReadingProgress />
       <article className="max-w-3xl mx-auto px-4 py-8">
         <PostHeader post={post!} />
         <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
