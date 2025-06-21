@@ -61,7 +61,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/posts"
+                href="/articles"
                 className="text-gray-900 hover:text-blue-600 px-3 py-2 text-base font-medium transition-colors duration-200"
               >
                 מאמרים
@@ -162,7 +162,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="/posts"
+            href="/articles"
             className="text-gray-900 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 text-base font-medium rounded-md transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >

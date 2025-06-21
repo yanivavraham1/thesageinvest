@@ -40,7 +40,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/posts"
+                  href="/articles"
                   className="flex items-center hover:text-white transition-colors"
                 >
                   <FileText size={18} className="ml-1" />
