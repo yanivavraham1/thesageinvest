@@ -1,103 +1,177 @@
-import Image from "next/image";
+import { TrendingUp, Lightbulb, Users, Award } from "lucide-react";
+import { Metadata } from "next";
+import Script from "next/script";
+import { getPosts } from "@/lib/prisma";
+import { HeroSection } from "@/components/static/hero-section";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
+import { PostCard2 } from "@/components/article/cards/PostCard2";
+import { PostCard3 } from "@/components/article/cards/PostCard3";
+import { PostCard1 } from "@/components/article/cards/PostCard1";
+import CategoryCards from "@/components/static/categories";
+// Categories with colors
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "השקעה נבונה | המדריך המלא להשקעות חכמות",
+  description:
+    "בלוג מקצועי על השקעות בשוק ההון, ניתוחים פיננסיים, טיפים מעשיים ואסטרטגיות חכמות למשקיעים מתחילים ומנוסים. כולל מדריכים מקיפים, כלים פיננסיים וניתוחי שוק עדכניים.",
+  openGraph: {
+    title: "השקעה נבונה | המדריך המלא להשקעות חכמות",
+    description:
+      "בלוג מקצועי על השקעות בשוק ההון, ניתוחים פיננסיים, טיפים מעשיים ואסטרטגיות חכמות למשקיעים מתחילים ומנוסים.",
+    type: "website",
+    locale: "he_IL",
+    siteName: "השקעה נבונה",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "השקעה נבונה | המדריך המלא להשקעות חכמות",
+    description:
+      "בלוג מקצועי על השקעות בשוק ההון, ניתוחים פיננסיים, טיפים מעשיים ואסטרטגיות חכמות למשקיעים מתחילים ומנוסים.",
+  },
+};
+
+export default async function Home() {
+  const posts = await getPosts(7);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <Script
+        id="homepage-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "השקעה נבונה",
+            description:
+              "בלוג מקצועי על השקעות בשוק ההון, ניתוחים פיננסיים, טיפים מעשיים ואסטרטגיות חכמות למשקיעים מתחילים ומנוסים.",
+            url: process.env.NEXT_PUBLIC_BASE_URL,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${process.env.NEXT_PUBLIC_BASE_URL}/posts?search={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      <div className="min-h-screen rtl" dir="rtl">
+        <main className=" mx-auto ">
+          {/* Hero Section */}
+          <HeroSection
+            title="השקעה נבונה"
+            paragraph="
+                הבלוג המוביל בישראל לאסטרטגיות השקעה, ניתוחים פיננסיים וטיפים
+                להצלחה בשוק ההון"
+            fromColor="from-blue-100"
+            toColor="to-green-200"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <section>
+            <div className="container mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Card 1 */}
+                <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <TrendingUp className="h-8 w-8 text-blue-600" />
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          השקעות חכמות
+                        </CardTitle>
+                        <CardDescription>
+                          טיפים ואסטרטגיות להשקעה נבונה בשוק ההון
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Card 2 */}
+                <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <Lightbulb className="h-8 w-8 text-yellow-600" />
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          מדריכים מקצועיים
+                        </CardTitle>
+                        <CardDescription>
+                          מדריכים מעשיים להשקעה חכמה ומושכלת
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Card 3 */}
+                <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <Users className="h-8 w-8 text-green-600" />
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          קהילה תומכת
+                        </CardTitle>
+                        <CardDescription>
+                          הצטרפו לקהילה שלנו לשיתוף ידע ותמיכה הדדית
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Card 4 */}
+                <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <Award
+                        className="h-8
+ w-8 text-purple-600"
+                      />
+                      <div>
+                        <CardTitle className="text-lg font-semibold">
+                          הישגים מרשימים
+                        </CardTitle>
+                        <CardDescription>
+                          ניתוחים מעמיקים והצלחות בשוק ההון
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+          <section className="bg-white p-4">
+            <CategoryCards />
+          </section>
+          <section className=" relative bg-white bg-gradient-to-br  p-4 ">
+            <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 container mx-auto">
+              {/* PostCard2 and PostCard3 in the center */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 lg:col-span-5 ">
+                <PostCard2 post={posts[0]} className="md:col-span-2" />
+                <PostCard3 post={posts[1]} />
+                <PostCard3 post={posts[2]} />
+              </div>
+              {/* PostCard1 list on the left */}
+              <div className="flex flex-col gap-2 lg:col-span-3">
+                <div className="text-center justify-center">
+                  <h3 className="font-bold">מאמרים מומלצים</h3>
+                </div>
+                <PostCard1 post={posts[3]} />
+                <PostCard1 post={posts[4]} />
+                <PostCard1 post={posts[5]} />
+                <PostCard1 post={posts[6]} />
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </>
   );
 }

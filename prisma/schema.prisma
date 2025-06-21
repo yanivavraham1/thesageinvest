@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Author {
+  id     Int     @id @default(autoincrement()) // Autoincremented ID
+  name   String                             // Author name
+  avatar String?                            // Optional avatar URL
+
+  posts  Post[]
+}
+
+model Category {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique                      // Category name
+  bgColor  String  @default("black")            // Background color
+  txtColor String  @default("white")            // Text color
+
+  posts    Post[]                               // Many-to-many with Post
+}
+
+model Post {
+  id              Int        @id @default(autoincrement()) // Autoincremented ID
+  slug            String     @unique                      // Unique slug for URL
+  title           String
+  description     String
+  keywords        String?                                 // Optional SEO keywords
+  authorId        Int
+  createdAt       DateTime   @default(now())              // Timestamp
+  updatedAt       DateTime   @updatedAt @default(now())   // Auto-updates on update
+  mainImageSrc    String?                                 // Optional image URL
+  mainImageAlt    String?                                 // Optional alt text
+
+  author          Author     @relation(fields: [authorId], references: [id])
+  categories      Category[]                              // Many-to-many relation
+}
