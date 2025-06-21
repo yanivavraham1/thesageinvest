@@ -24,9 +24,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/policy/cookies`,
       lastModified: new Date().toISOString(),
     },
-    { url: `${baseUrl}/meitav`, lastModified: new Date().toISOString() },
+    { url: `${baseUrl}/special-offer`, lastModified: new Date().toISOString() },
     {
-      url: `${baseUrl}/meitav/success`,
+      url: `${baseUrl}/special-offer/success`,
       lastModified: new Date().toISOString(),
     },
     {
