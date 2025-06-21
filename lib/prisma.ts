@@ -131,24 +131,24 @@ export async function getPostsByCategories(categoryIds: number[]) {
   });
 }
 export async function createPost(
-  id: number,
   slug: string,
   title: string,
   description: string,
   authorId: number,
   mainImageSrc: string,
   mainImageAlt: string,
-  categoriesIds: number[]
+  categoriesIds: number[],
+  keywords: string
 ): Promise<Post> {
   return await prisma.post.create({
     data: {
-      id,
       slug,
       title,
       description,
       authorId,
       mainImageSrc,
       mainImageAlt,
+      keywords,
       categories: {
         connect: categoriesIds.map((categoryId) => ({ id: categoryId })),
       },

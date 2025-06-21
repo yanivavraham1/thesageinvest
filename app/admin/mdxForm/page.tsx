@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -7,7 +7,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, ChevronUp, ChevronDown, Upload } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  Upload,
+  FolderIcon,
+  ImageIcon,
+  UserIcon,
+  TagIcon,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Author, Category } from "@prisma/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
+import CloudinaryImageUploader from "@/components/static/cloudinary-image-uploader";
 // Type definitions
 interface ComponentField {
   name: string;
@@ -202,6 +221,31 @@ export default function MdxForm() {
   const [loadedMetadata, setLoadedMetadata] = useState<MetadataState>({});
   const [parseError, setParseError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [slug, setSlug] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [imageSrc, setImageSrc] = useState<string>("");
+  const [imageAlt, setImageAlt] = useState<string>("");
+  const [selectedAuthor, setSelectedAuthor] = useState<number>();
+  const [keywords, setKeywords] = useState<string>();
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      const response = await fetch("/api/authors");
+      const data = await response.json();
+      setAuthors(data);
+    };
+    fetchAuthors();
+    const fetchCategories = async () => {
+      const response = await fetch("/api/categories");
+      const data = await response.json();
+      setCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleComponentSelect = (componentName: string) => {
     setSelectedComponent(componentName);
@@ -466,36 +510,9 @@ export default function MdxForm() {
   };
 
   const generateFullMDX = () => {
-    const imports = [
-      ...new Set(
-        mdxComponents.map((comp) => {
-          const componentName = comp.match(/<(\w+)/)?.[1];
-          return componentName;
-        })
-      ),
-    ]
-      .map((name) => `import ${name} from '@/components/${name}';`)
-      .join("\n");
-
-    // Use loaded metadata if available, otherwise use defaults
-    const metadata = {
-      title: loadedMetadata.title || "Generated MDX File",
-      description: loadedMetadata.description || "Auto-generated MDX content",
-      date: loadedMetadata.date || new Date().toISOString().split("T")[0],
-      ...loadedMetadata,
-    };
-
-    const frontmatter = `---
-${Object.entries(metadata)
-  .map(([key, value]) => `${key}: "${value}"`)
-  .join("\n")}
----
-
-`;
-
     const content = mdxComponents.join("\n\n");
 
-    return `${frontmatter}${imports ? imports + "\n\n" : ""}${content}`;
+    return `${content}`;
   };
 
   const renderInput = (prop: ComponentProp) => {
@@ -506,6 +523,29 @@ ${Object.entries(metadata)
       typeof formData[prop.name] === "number"
     ) {
       value = formData[prop.name] as string | number;
+    }
+
+    // Special handling for PostImage src field
+    if (prop.name === "src" && selectedComponent === "PostImage") {
+      return (
+        <div className="space-y-2">
+          <Label>Upload Image</Label>
+          <CloudinaryImageUploader
+            setImageUrl={(url) => handleInputChange("src", url)}
+          />
+          <Label>Or enter image URL</Label>
+          <input
+            id={prop.name}
+            value={value}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              handleInputChange(prop.name, e.target.value)
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            type="text"
+            placeholder="Enter image URL"
+          />
+        </div>
+      );
     }
 
     switch (prop.input) {
@@ -656,8 +696,277 @@ ${Object.entries(metadata)
     (c) => c.component === selectedComponent
   );
 
+  // Update your handleSubmit function in the MdxForm component
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      // Validate required fields
+      if (!slug || !title || !selectedAuthor) {
+        alert("Please fill in all required fields: slug, title, and author");
+        return;
+      }
+
+      // Generate the complete MDX content
+      const mdxContent = generateFullMDX();
+
+      // Prepare the request body
+      const requestBody = {
+        id: Date.now().toString(), // or use a proper ID generation method
+        slug,
+        title,
+        subtitle: description, // using description as subtitle
+        authorId: selectedAuthor.toString(),
+        mainImageSrc: imageSrc,
+        mainImageAlt: imageAlt,
+        categoriesIds: selectedCategories,
+        mdxContent, // Include the MDX content
+        keywords,
+      };
+
+      // Make the API call
+      const response = await fetch("/api/article", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create article");
+      }
+
+      const newPost = await response.json();
+      console.log("Article created successfully:", newPost);
+
+      // Reset form or redirect
+      alert("Article created successfully!");
+      resetForm();
+    } catch (error) {
+      console.error("Error creating article:", error);
+      alert(
+        `Error creating article: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  // Optional: Add a reset function
+  const resetForm = () => {
+    setSlug("");
+    setTitle("");
+    setDescription("");
+    setImageSrc("");
+    setImageAlt("");
+    setSelectedAuthor(undefined);
+    setKeywords("");
+    setSelectedCategories([]);
+    setMdxComponents([]);
+    setFormData({});
+    setSelectedComponent("");
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white">
+      {/* Article Metadata */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Article Metadata
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FolderIcon className="h-5 w-5" />
+              Basic Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  type="text"
+                  id="slug"
+                  placeholder="blog-post-slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  type="text"
+                  id="title"
+                  placeholder="Enter blog post title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Enter a brief description of your blog post"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Image Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" />
+              Featured Image
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="imageSrc">Image URL</Label>
+                <Input
+                  type="url"
+                  id="imageSrc"
+                  placeholder="https://example.com/image.jpg"
+                  value={imageSrc}
+                  onChange={(e) => setImageSrc(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imageAlt">Image Alt Text</Label>
+                <Input
+                  type="text"
+                  id="imageAlt"
+                  placeholder="Describe the image"
+                  value={imageAlt}
+                  onChange={(e) => setImageAlt(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Or Upload Image</Label>
+              <CloudinaryImageUploader setImageUrl={setImageSrc} />
+            </div>
+            {imageSrc && (
+              <div className="mt-4">
+                <Label>Preview</Label>
+                <div className="mt-2 border rounded-lg overflow-hidden">
+                  <Image
+                    src={imageSrc || "/placeholder.svg"}
+                    alt={imageAlt || "Preview"}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "/placeholder.svg?height=200&width=400";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Author and Metadata */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <UserIcon className="h-5 w-5" />
+              Author & Metadata
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="author">Author</Label>
+                <Select
+                  onValueChange={(value) => setSelectedAuthor(Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an author" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {authors.map((author) => (
+                      <SelectItem key={author.id} value={author.id.toString()}>
+                        {author.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="keywords">Keywords</Label>
+                <Input
+                  type="text"
+                  id="keywords"
+                  placeholder="keyword1, keyword2, keyword3"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Separate keywords with commas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Categories */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <TagIcon className="h-5 w-5" />
+              Categories
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={category.id.toString()}
+                    checked={selectedCategories.includes(category.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedCategories((prev) => [...prev, category.id]);
+                      } else {
+                        setSelectedCategories((prev) =>
+                          prev.filter((id) => id !== category.id)
+                        );
+                      }
+                    }}
+                  />
+                  <Label
+                    htmlFor={category.id.toString()}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {category.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {selectedCategories.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm text-muted-foreground">
+                  Selected: {selectedCategories.length} categor
+                  {selectedCategories.length === 1 ? "y" : "ies"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Submit Button */}
+          <div className="flex justify-end space-x-4">
+            <Button type="button" variant="outline">
+              Save as Draft
+            </Button>
+            <Button type="submit">Publish Post</Button>
+          </div>
+        </form>
+      </div>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           MDX Component Generator

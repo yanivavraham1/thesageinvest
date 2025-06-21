@@ -1,44 +1,84 @@
+// app/api/article/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 import { createPost } from "@/lib/prisma";
-import { JsonValue } from "@prisma/client/runtime/library";
-import { NextResponse } from "next/server";
 
 interface PostRequestBody {
-  id: number;
+  id: string;
   slug: string;
   title: string;
-  subtitle: string;
+  description?: string;
   authorId: string;
-  mainImageSrc: string;
-  mainImageAlt: string;
-  mainImageCaption: string;
-  content: JsonValue;
+  mainImageSrc?: string;
+  mainImageAlt?: string;
   categoriesIds: number[];
+  mdxContent: string;
+  keywords?: string;
 }
 
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: NextRequest): Promise<Response> {
   try {
     const body: PostRequestBody = await req.json();
     const {
-      id,
       slug,
       title,
-      subtitle,
+      description,
       authorId,
       mainImageSrc,
       mainImageAlt,
       categoriesIds,
+      mdxContent,
+      keywords,
     } = body;
+
+    // Create the post in the database
     const newPost = await createPost(
-      id,
       slug,
       title,
-      subtitle,
+      description || "",
       parseInt(authorId),
-      mainImageSrc,
-      mainImageAlt,
-      categoriesIds
+      mainImageSrc || "",
+      mainImageAlt || "",
+      categoriesIds,
+      keywords || ""
     );
-    return NextResponse.json(newPost, { status: 201 });
+
+    const fullMdxContent = mdxContent;
+
+    // Only write file in development or if explicitly configured
+    if (
+      process.env.NODE_ENV === "development" ||
+      process.env.ENABLE_FILE_WRITE === "true"
+    ) {
+      try {
+        // Ensure the content directory exists
+        const contentDir = path.join(process.cwd(), "public", "content");
+        await mkdir(contentDir, { recursive: true });
+
+        // Write the MDX file
+        const filePath = path.join(contentDir, `${slug}.mdx`);
+        await writeFile(filePath, fullMdxContent, "utf8");
+
+        console.log(`MDX file written to: ${filePath}`);
+      } catch (fileError) {
+        console.error("Error writing MDX file:", fileError);
+        // Don't fail the request if file writing fails
+      }
+    }
+
+    // For production, you might want to:
+    // 1. Store the MDX content in the database
+    // 2. Use a GitHub Action to commit the file
+    // 3. Use a headless CMS
+
+    return NextResponse.json(
+      {
+        ...newPost,
+        mdxContent: fullMdxContent,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error adding post:", error);
     return NextResponse.json(
