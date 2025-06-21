@@ -1,0 +1,42 @@
+[
+  {
+    "component": "PostImage",
+    "props": [
+      {
+        "name": "src",
+        "label": "Image Source",
+        "type": "string",
+        "input": "input"
+      },
+      {
+        "name": "alt",
+        "label": "Alt Text",
+        "type": "string",
+        "input": "textarea"
+      },
+      {
+        "name": "width",
+        "label": "Image Width",
+        "type": "number",
+        "input": "input"
+      },
+      {
+        "name": "height",
+        "label": "Image Height",
+        "type": "number",
+        "input": "input"
+      }
+    ]
+  },
+  {
+    "component": "Heading",
+    "props": [
+      {
+        "name": "text",
+        "label": "Heading Text",
+        "type": "string",
+        "input": "input"
+      }
+    ]
+  }
+]
