@@ -31,9 +31,9 @@ export async function getPostBySlug(slug: string) {
   });
 }
 
-export async function getPosts(amount: number) {
+export async function getPosts(amount?: number) {
   const posts = await prisma.post.findMany({
-    take: amount,
+    ...(amount && { take: amount }),
     orderBy: {
       createdAt: "desc",
     },
