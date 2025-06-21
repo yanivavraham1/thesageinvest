@@ -270,13 +270,13 @@ export default function MdxForm() {
       bodyContent = bodyContent.replace(/^import\s+.*?from\s+.*?;\n*/gm, "");
 
       // Parse components
-      const componentRegex = /<\w+([^>]*?)\/>/g;
+      const componentRegex = /<(\w+)([^>]*)\/>/g;
       const parsedComponents: string[] = [];
       let match: RegExpExecArray | null;
 
       while ((match = componentRegex.exec(bodyContent)) !== null) {
         const componentName = match[1];
-        const propsString = match[2].trim();
+        const propsString = match[2]?.trim() ?? "";
 
         // Check if this component is supported
         const componentDef = components.find(
