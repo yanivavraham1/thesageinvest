@@ -149,13 +149,17 @@ export async function createPost(
       authorId,
       mainImageSrc,
       mainImageAlt,
-
       categories: {
         connect: categoriesIds.map((categoryId) => ({ id: categoryId })),
       },
     },
+    include: {
+      author: true,
+      categories: true,
+    },
   });
 }
+
 export async function searchPosts({
   searchFilter = "",
   limit = 50,
