@@ -56,15 +56,9 @@ const components: ComponentDefinition[] = [
         input: "textarea",
       },
       {
-        name: "width",
-        label: "Image Width",
-        type: "number",
-        input: "input",
-      },
-      {
-        name: "height",
-        label: "Image Height",
-        type: "number",
+        name: "caption",
+        label: "Image Caption",
+        type: "string",
         input: "input",
       },
     ],
