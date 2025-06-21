@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { createPost } from "@/lib/prisma";
+import { triggerGitHubAction } from "@/lib/github";
 
 interface PostRequestBody {
   id: string;
@@ -43,8 +44,23 @@ export async function POST(req: NextRequest): Promise<Response> {
       categoriesIds,
       keywords || ""
     );
-
     const fullMdxContent = mdxContent;
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.USE_GITHUB_ACTIONS === "true"
+    ) {
+      try {
+        await triggerGitHubAction({
+          slug,
+          title,
+          content: fullMdxContent,
+        });
+        console.log("GitHub Action triggered successfully");
+      } catch (githubError) {
+        console.error("Error triggering GitHub Action:", githubError);
+        // Don't fail the request if GitHub Action fails
+      }
+    }
 
     // Only write file in development or if explicitly configured
     if (
