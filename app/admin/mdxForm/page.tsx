@@ -70,6 +70,29 @@ const components: ComponentDefinition[] = [
     ],
   },
   {
+    component: "SubHeading",
+    props: [
+      {
+        name: "text",
+        label: "Sub Heading Text",
+        type: "string",
+        input: "input",
+      },
+    ],
+  },
+  {
+    component: "Paragraph",
+    props: [
+      {
+        name: "text",
+        label: "Paragraph Text",
+        type: "string",
+        input: "textarea",
+      },
+    ],
+  },
+
+  {
     component: "Heading",
     props: [
       {
