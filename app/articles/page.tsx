@@ -25,7 +25,13 @@ export default function InfinitePostList() {
       const res = await fetch(url.toString());
       const data = await res.json();
 
-      setPosts((prev) => [...prev, ...data.posts]);
+      setPosts((prev) => [
+        ...prev,
+        ...data.posts.map((post: Post) => ({
+          ...post,
+          createdAt: post.createdAt ? new Date(post.createdAt) : null,
+        })),
+      ]);
       setCursor(data.nextCursor);
       setHasMore(data.nextCursor !== null);
       setLoading(false);
@@ -55,9 +61,10 @@ export default function InfinitePostList() {
 
   return (
     <div>
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post as Post} />
-      ))}
+      {posts.map((post) => {
+        console.log(post);
+        return <PostCard key={post.id} post={post} />;
+      })}
       <div ref={observerRef} className="h-10" />
       {loading && (
         <p className="text-center text-sm text-gray-500 py-4">טוען עוד...</p>
