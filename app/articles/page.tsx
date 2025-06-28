@@ -1,5 +1,6 @@
 "use client";
 
+import { PostsContainer } from "@/components/article/components/posts-container";
 import { Post } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -45,14 +46,8 @@ export default function InfinitePostList() {
 
   return (
     <div>
-      {posts.map((post) => (
-        <div key={post.id} className="border-b p-36 bg-amber-100">
-          <h2 className="text-xl font-bold">{post.title}</h2>
-          <p>{post.description}</p>
-        </div>
-      ))}
+      <PostsContainer posts={posts} />
       <div ref={observerRef} className="h-10" />
-      {loading && <p>Loading...</p>}
     </div>
   );
 }
