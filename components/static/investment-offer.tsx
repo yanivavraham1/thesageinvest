@@ -1,11 +1,10 @@
 import ContactForm from "./contact-form";
-import { Check } from "lucide-react";
 import { CloudImage } from "./CloudImage";
 export default function InvestmentOffer() {
   return (
     <div className="min-h-screen ">
       {/* Hero Section */}
-      <section className="py-16 md:py-24 container mx-auto px-4">
+      {/* <section className="py-16 md:py-24 container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="order-2 md:order-1">
@@ -83,7 +82,7 @@ export default function InvestmentOffer() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Comparison Tables Section */}
       <section className="py-16 bg-white">
