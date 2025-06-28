@@ -159,3 +159,17 @@ export async function createPost(
     },
   });
 }
+/**
+ * Search posts with infinite scroll (cursor-based pagination)
+ * @param {Object} params - Search parameters
+ * @param {string} params.query - Search query string
+ * @param {number} params.cursor - Cursor for pagination (post ID to start after)
+ * @param {number} params.limit - Number of results to fetch (default: 8)
+ * @param {string} params.sortBy - Sort field: 'relevance', 'date', 'title' (default: 'relevance')
+ * @param {string} params.sortOrder - Sort order: 'asc', 'desc' (default: 'desc')
+ * @param {number[]} params.categoryIds - Optional array of category IDs to filter by
+ * @param {number} params.authorId - Optional author ID to filter by
+ * @param {Date} params.dateFrom - Optional start date filter
+ * @param {Date} params.dateTo - Optional end date filter
+ * @returns {Object} Search results with infinite scroll metadata
+ */
