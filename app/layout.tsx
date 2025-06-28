@@ -1,13 +1,10 @@
 import type React from "react";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "@/components/static/header";
 import Footer from "@/components/static/footer";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -35,7 +32,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={inter.className + "relative"}>
+      <body className={"relative"}>
         <SpeedInsights />
         <Analytics />
 
