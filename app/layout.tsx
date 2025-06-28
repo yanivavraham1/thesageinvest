@@ -5,6 +5,7 @@ import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "@/components/static/header";
+import Footer from "@/components/static/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,9 +38,11 @@ export default function RootLayout({
       <body className={inter.className + "relative"}>
         <SpeedInsights />
         <Analytics />
-        <Header />
+
         <div className="flex flex-col min-h-screen">
+          <Header />
           <main className="flex-1">{children}</main>
+          <Footer />
         </div>
       </body>
     </html>

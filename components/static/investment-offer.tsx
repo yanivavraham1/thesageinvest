@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import { CloudImage } from "./CloudImage";
 export default function InvestmentOffer() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
+    <div className="min-h-screen ">
       {/* Hero Section */}
       <section className="py-16 md:py-24 container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
