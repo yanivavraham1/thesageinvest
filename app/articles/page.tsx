@@ -10,6 +10,8 @@ export default function InfinitePostList() {
   const [hasMore, setHasMore] = useState(true);
   const [cursor, setCursor] = useState<number | null>(null);
   const observerRef = useRef<HTMLDivElement | null>(null);
+
+  // Load posts
   useEffect(() => {
     const loadPosts = async () => {
       if (loading || !hasMore) return;
@@ -27,20 +29,25 @@ export default function InfinitePostList() {
     };
 
     loadPosts();
-  }, [cursor, loading, hasMore]); // ✅ include missing deps
+  }, [cursor, hasMore, loading]);
 
+  // Observe bottom div to load more
   useEffect(() => {
+    if (!observerRef.current) return;
+
     const observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if (entry.isIntersecting && hasMore && !loading) {
-        setCursor((prev) => prev); // trigger fetch again
+        // 👇 Only trigger next fetch if we actually have a nextCursor
+        setCursor((prevCursor) => prevCursor); // Triggers effect if cursor is not null (which it won't change)
       }
     });
 
-    if (observerRef.current) observer.observe(observerRef.current);
+    const current = observerRef.current;
+    observer.observe(current);
 
     return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
+      if (current) observer.unobserve(current);
     };
   }, [hasMore, loading]);
 
@@ -48,6 +55,7 @@ export default function InfinitePostList() {
     <div>
       <PostsContainer posts={posts} />
       <div ref={observerRef} className="h-10" />
+      {loading && <p>Loading...</p>}
     </div>
   );
 }
