@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Calculator, Star, ChevronDown, Home } from "lucide-react";
+import { Menu, Calculator, Star, Home } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -84,7 +84,6 @@ export default function Navbar() {
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-base font-medium cursor-pointer hover:bg-accent/80 transition-all duration-200 data-[state=open]:bg-accent">
                   מאמרים
-                  <ChevronDown className="mr-2 h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="grid w-[400px] p-3 gap-2">
