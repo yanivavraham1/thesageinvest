@@ -11,17 +11,20 @@ export default function InfinitePostList() {
   const [cursor, setCursor] = useState<number | null>(null);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  // Load posts
+  // Load posts when cursor changes
   useEffect(() => {
     const loadPosts = async () => {
       if (loading || !hasMore) return;
 
       setLoading(true);
       const url = new URL("/api/articles", window.location.origin);
-      if (cursor) url.searchParams.set("cursor", cursor.toString());
+      if (cursor !== null) {
+        url.searchParams.set("cursor", cursor.toString());
+      }
 
       const res = await fetch(url.toString());
       const data = await res.json();
+
       setPosts((prev) => [...prev, ...data.posts]);
       setCursor(data.nextCursor);
       setHasMore(data.nextCursor !== null);
@@ -29,27 +32,26 @@ export default function InfinitePostList() {
     };
 
     loadPosts();
-  }, [cursor, hasMore, loading]);
+  }, [cursor, hasMore, loading]); // safe to include
 
-  // Observe bottom div to load more
+  // Observe bottom ref and trigger cursor update
   useEffect(() => {
-    if (!observerRef.current) return;
+    const current = observerRef.current;
+    if (!current) return;
 
     const observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if (entry.isIntersecting && hasMore && !loading) {
-        // 👇 Only trigger next fetch if we actually have a nextCursor
-        setCursor((prevCursor) => prevCursor); // Triggers effect if cursor is not null (which it won't change)
+        setCursor((prev) => (prev === null ? 0 : prev));
       }
     });
 
-    const current = observerRef.current;
     observer.observe(current);
 
     return () => {
-      if (current) observer.unobserve(current);
+      observer.disconnect(); // safer cleanup
     };
-  }, [hasMore, loading]);
+  }, [hasMore, loading]); // ✅ include both as dependencies
 
   return (
     <div>
@@ -57,7 +59,9 @@ export default function InfinitePostList() {
         <PostCard key={post.id} post={post as Post} />
       ))}
       <div ref={observerRef} className="h-10" />
-      {loading && <p>Loading...</p>}
+      {loading && (
+        <p className="text-center text-sm text-gray-500 py-4">טוען עוד...</p>
+      )}
     </div>
   );
 }
