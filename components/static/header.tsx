@@ -36,8 +36,8 @@ export default function Navbar() {
         <Link href="/" className="flex items-center space-x-2">
           <div className="relative h-8 w-8">
             <Image
-              src="/placeholder.svg?height=32&width=32"
-              alt="Website Logo"
+              src="https://res.cloudinary.com/dz5yhvdqt/image/upload/v1748872292/ql58marlkisllc1jxzcj_xcsok2.avif"
+              alt="לוגו - השקעה נבונה"
               width={32}
               height={32}
               className="rounded-sm"
