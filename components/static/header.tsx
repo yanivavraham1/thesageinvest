@@ -212,7 +212,6 @@ export default function Navbar() {
                       </Link>
                       <CollapsibleTrigger className="flex w-full items-center justify-between py-3 px-4 text-base font-semibold hover:bg-accent/50 rounded-md transition-all duration-200 border">
                         קטגוריות מאמרים
-                        <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                     </div>
                     <CollapsibleContent className="space-y-2 pr-4 animate-in slide-in-from-top-1 duration-200">
