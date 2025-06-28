@@ -1,221 +1,160 @@
 "use client";
 
-import { useState } from "react";
+import { Menu, Calculator, Star } from "lucide-react";
 import Link from "next/link";
-import { Menu, X, ChevronDown, Calculator, Gift } from "lucide-react";
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { CloudImage } from "./CloudImage";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
-export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const categories = [
+  { href: "/categories/pension-and-insurance", label: "פנסיה וביטוחים" },
+  { href: "/categories/personal-finance", label: "התנהלות כלכלית" },
+  { href: "/categories/real-estate", label: 'נדל"ן' },
+  { href: "/categories/stock-market", label: "שוק ההון" },
+];
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const categories = [
-    { href: "/categories/pension-and-insurance", label: "פנסיה וביטוחים" },
-    { href: "/categories/personal-finance", label: "התנהלות כלכלית" },
-    { href: "/categories/real-estate", label: 'נדל"ן' },
-    { href: "/categories/stock-market", label: "שוק ההון" },
-  ];
-
+export default function Navbar() {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50" role="banner">
-      <div className="container mx-auto px-4 ">
-        <div className="flex items-center justify-between h-20">
-          <div className="flex items-center ">
-            <Link
-              href="/"
-              className="shrink-0 flex-1"
-              aria-label="השקעה נבונה - דף הבית"
-            >
-              <div className=" w-fit rounded flex items-center justify-center gap-2">
-                <CloudImage
-                  className="rounded-full"
-                  src="https://res.cloudinary.com/dz5yhvdqt/image/upload/v1748872292/ql58marlkisllc1jxzcj_xcsok2.avif"
-                  height={55}
-                  width={55}
-                  alt="לוגו השקעה נבונה"
-                />
-              </div>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav
-              className="hidden lg:mr-10 lg:flex lg:items-center lg:space-x-6 lg:space-x-reverse"
-              aria-label="תפריט ראשי"
-            >
-              <Link
-                href="/"
-                className="text-gray-900 hover:text-blue-600 px-3 py-2 text-base font-medium transition-colors duration-200"
-              >
-                דף הבית
-              </Link>
-
-              <Link
-                href="/articles"
-                className="text-gray-900 hover:text-blue-600 px-3 py-2 text-base font-medium transition-colors duration-200"
-              >
-                מאמרים
-              </Link>
-
-              {/* Categories Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-gray-900 hover:text-blue-600 px-3 py-2 text-base font-medium transition-colors duration-200 flex items-center gap-1"
-                  >
-                    קטגוריות
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {categories.map((category) => (
-                    <DropdownMenuItem key={category.href} asChild>
-                      <Link
-                        href={category.href}
-                        className="w-full text-right cursor-pointer"
-                      >
-                        {category.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Financial Tools - Special styling */}
-              <Link
-                href="/tools/compound-interest-calculator"
-                className="relative group mx-3"
-              >
-                <Button
-                  variant="outline"
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2"
-                >
-                  <Calculator className="h-4 w-4" />
-                  ריבית דריבית
-                </Button>
-              </Link>
-
-              {/* Special Offer - Special styling */}
-              <Link href="/special-offer" className="relative group">
-                <Button
-                  variant="outline"
-                  className="bg-gradient-to-r from-orange-500 to-red-600 text-white border-0 hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg animate-pulse flex items-center gap-2"
-                >
-                  <Gift className="h-4 w-4" />
-                  הצעה מיוחדת
-                </Button>
-              </Link>
-            </nav>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between px-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <div className="relative h-8 w-8">
+            <Image
+              src="/placeholder.svg?height=32&width=32"
+              alt="Website Logo"
+              width={32}
+              height={32}
+              className="rounded-sm"
+            />
           </div>
+        </Link>
 
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-menu"
-              aria-label={isMenuOpen ? "סגור תפריט" : "פתח תפריט"}
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      <div
-        id="mobile-menu"
-        className={cn(
-          "lg:hidden bg-white absolute w-full shadow-md transition-all duration-300 ease-in-out",
-          isMenuOpen
-            ? "max-h-screen opacity-100"
-            : "max-h-0 opacity-0 overflow-hidden"
-        )}
-      >
-        <nav
-          className="flex flex-col space-y-1 px-4 pb-4"
-          aria-label="תפריט נייד"
-        >
-          <Link
-            href="/"
-            className="text-gray-900 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 text-base font-medium rounded-md transition-colors duration-200"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            דף הבית
-          </Link>
-
-          <Link
-            href="/articles"
-            className="text-gray-900 hover:text-blue-600 hover:bg-gray-50 px-3 py-3 text-base font-medium rounded-md transition-colors duration-200"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            מאמרים
-          </Link>
-
-          {/* Mobile Categories */}
-          <div className="px-3 py-2">
-            <div className="text-gray-700 font-medium mb-2">קטגוריות</div>
-            <div className="mr-4 space-y-1">
-              {categories.map((category) => (
-                <Link
-                  key={category.href}
-                  href={category.href}
-                  className="block text-gray-600 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 text-sm rounded-md transition-colors duration-200"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {category.label}
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-6">
+          <NavigationMenu dir="rtl">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link href="/articles">
+                  <NavigationMenuTrigger className="text-base font-medium cursor-pointer">
+                    מאמרים
+                  </NavigationMenuTrigger>
                 </Link>
-              ))}
-            </div>
-          </div>
+                <NavigationMenuContent>
+                  <div className="grid w-[300px] p-2">
+                    {categories.map((category) => (
+                      <NavigationMenuLink key={category.href} asChild>
+                        <Link
+                          href={category.href}
+                          className="group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                        >
+                          <div className="text-sm font-medium leading-none group-hover:underline text-right">
+                            {category.label}
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
 
-          {/* Mobile Financial Tools */}
-          <Link
-            href="/tools/compound-interest-calculator"
-            className="mx-3 my-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
+          <Link href="/tools/compound-interest-calculator">
             <Button
               variant="outline"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
             >
-              <Calculator className="h-4 w-4" />
-              ריבית דריבית
+              <Calculator className="ml-2 h-4 w-4" />
+              מחשבון ריבית דריבית
             </Button>
           </Link>
 
-          {/* Mobile Special Offer */}
-          <Link
-            href="/special-offer"
-            className="mx-3 my-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <Button
-              variant="outline"
-              className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white border-0 hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-md animate-pulse flex items-center justify-center gap-2"
-            >
-              <Gift className="h-4 w-4" />
+          <Link href="/special-offer">
+            <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white">
+              <Star className="ml-2 h-4 w-4" />
               הצעה מיוחדת
             </Button>
           </Link>
-        </nav>
+        </div>
+
+        {/* Mobile Navigation */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden bg-transparent"
+            >
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side="right"
+            className="w-[300px] sm:w-[400px]"
+            dir="rtl"
+          >
+            <div className="flex flex-col space-y-4 mt-6">
+              {/* Articles with Categories */}
+              <Collapsible className="space-y-2">
+                <Link href="/articles">
+                  <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold hover:text-accent-foreground">
+                    מאמרים
+                    <ChevronDown className="h-4 w-4" />
+                  </CollapsibleTrigger>
+                </Link>
+                <CollapsibleContent className="space-y-2 pr-4">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.href}
+                      href={category.href}
+                      className="block py-2 text-base text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {category.label}
+                    </Link>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Special Buttons */}
+              <Link
+                href="/tools/compound-interest-calculator"
+                className="w-full"
+              >
+                <Button
+                  variant="outline"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700 justify-start"
+                >
+                  <Calculator className="ml-2 h-4 w-4" />
+                  מחשבון ריבית דריבית
+                </Button>
+              </Link>
+
+              <Link href="/special-offer" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white justify-start">
+                  <Star className="ml-2 h-4 w-4" />
+                  הצעה מיוחדת
+                </Button>
+              </Link>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

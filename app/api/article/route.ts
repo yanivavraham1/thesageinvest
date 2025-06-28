@@ -45,10 +45,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       keywords || ""
     );
     const fullMdxContent = mdxContent;
-    if (
-      process.env.NODE_ENV === "production" &&
-      process.env.USE_GITHUB_ACTIONS === "true"
-    ) {
+    if (process.env.NODE_ENV === "production") {
       try {
         await triggerGitHubAction({
           slug,
