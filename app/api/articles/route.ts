@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const cursor = searchParams.get("cursor");
-  const limit = 10;
+  const limit = 5;
 
   const posts = await prisma.post.findMany({
     take: limit + 1, // Fetch one extra to check if there's more
