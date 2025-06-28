@@ -1,8 +1,6 @@
 import type React from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/static/header";
-import Footer from "@/components/static/footer";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -39,10 +37,7 @@ export default function RootLayout({
         <SpeedInsights />
         <Analytics />
         <div className="flex flex-col min-h-screen">
-          <Header />
           <main className="flex-1">{children}</main>
-
-          <Footer />
         </div>
       </body>
     </html>
