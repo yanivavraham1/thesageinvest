@@ -1,5 +1,6 @@
 "use client";
 
+import { PostCard } from "@/components/article/cards/post-card";
 import { PostsContainer } from "@/components/article/components/posts-container";
 import { Post } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -53,7 +54,9 @@ export default function InfinitePostList() {
 
   return (
     <div>
-      <PostsContainer posts={posts} />
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post as Post} />
+      ))}
       <div ref={observerRef} className="h-10" />
       {loading && <p>Loading...</p>}
     </div>
