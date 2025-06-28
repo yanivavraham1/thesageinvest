@@ -46,7 +46,7 @@ export default function InfinitePostList() {
   return (
     <div>
       {posts.map((post) => (
-        <div key={post.id} className="p-4 border-b">
+        <div key={post.id} className="p-4 border-b p-36 bg-amber-100">
           <h2 className="text-xl font-bold">{post.title}</h2>
           <p>{post.description}</p>
         </div>
