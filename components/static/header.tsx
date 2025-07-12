@@ -1,8 +1,4 @@
-"use client";
-
-import { Menu, Calculator, Star, Home } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
+import React, { useState } from "react"; // Import useState
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +16,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import { Menu, Calculator, Star, Home } from "lucide-react"; // Import Lucide icons directly
+import Link from "next/link";
+import Image from "next/image";
 
 const categories = [
   {
@@ -45,6 +44,12 @@ const categories = [
 ];
 
 export default function Header() {
+  // State to control the mobile sheet's open/close status
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Function to close the sheet
+  const closeSheet = () => setIsSheetOpen(false);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
@@ -104,7 +109,7 @@ export default function Header() {
                     </div>
                     {categories.map((category) => (
                       <NavigationMenuLink key={category.href} asChild>
-                        <Link
+                        <a
                           href={category.href}
                           className="group grid h-auto w-full items-start gap-2 rounded-md bg-background p-3 text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none hover:shadow-sm"
                         >
@@ -114,7 +119,7 @@ export default function Header() {
                           <div className="text-xs text-muted-foreground text-right line-clamp-2">
                             {category.description}
                           </div>
-                        </Link>
+                        </a>
                       </NavigationMenuLink>
                     ))}
                   </div>
@@ -124,7 +129,7 @@ export default function Header() {
           </NavigationMenu>
 
           {/* Improved CTA buttons with better visual hierarchy */}
-          <Link href="/tools/compound-interest-calculator">
+          <a href="/tools/compound-interest-calculator">
             <Button
               variant="outline"
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
@@ -132,9 +137,9 @@ export default function Header() {
               <Calculator className="ml-2 h-4 w-4" />
               מחשבון ריבית דריבית
             </Button>
-          </Link>
+          </a>
 
-          <Link href="/special-offer">
+          <a href="/special-offer">
             <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 relative">
               <Star className="ml-2 h-4 w-4" />
               הצעה מיוחדת
@@ -145,11 +150,13 @@ export default function Header() {
                 חדש
               </Badge>
             </Button>
-          </Link>
+          </a>
         </div>
 
         {/* Improved Mobile Navigation */}
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          {" "}
+          {/* Control sheet state */}
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -185,7 +192,9 @@ export default function Header() {
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col space-y-4">
                   {/* Home link */}
-                  <Link href="/" className="w-full">
+                  <Link href="/" className="w-full" onClick={closeSheet}>
+                    {" "}
+                    {/* Add onClick */}
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-right hover:bg-accent/80 transition-all duration-200"
@@ -198,7 +207,13 @@ export default function Header() {
                   {/* Articles with Categories */}
                   <Collapsible className="space-y-3">
                     <div className="flex flex-col space-y-2">
-                      <Link href="/articles" className="w-full">
+                      <Link
+                        href="/articles"
+                        className="w-full"
+                        onClick={closeSheet}
+                      >
+                        {" "}
+                        {/* Add onClick */}
                         <Button
                           variant="ghost"
                           className="w-full justify-start text-right hover:bg-accent/80 transition-all duration-200"
@@ -212,10 +227,11 @@ export default function Header() {
                     </div>
                     <CollapsibleContent className="space-y-2 pr-4 animate-in slide-in-from-top-1 duration-200">
                       {categories.map((category) => (
-                        <Link
+                        <a
                           key={category.href}
                           href={category.href}
                           className="block p-3 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 border-r-2 border-transparent hover:border-blue-500"
+                          onClick={closeSheet} // Add onClick
                         >
                           <div className="font-medium text-right">
                             {category.label}
@@ -223,7 +239,7 @@ export default function Header() {
                           <div className="text-xs text-muted-foreground text-right mt-1">
                             {category.description}
                           </div>
-                        </Link>
+                        </a>
                       ))}
                     </CollapsibleContent>
                   </Collapsible>
@@ -233,9 +249,10 @@ export default function Header() {
 
                   {/* Special Buttons */}
                   <div className="space-y-3 flex flex-col gap-2">
-                    <Link
+                    <a
                       href="/tools/compound-interest-calculator"
                       className="w-full"
+                      onClick={closeSheet} // Add onClick
                     >
                       <Button
                         variant="outline"
@@ -244,9 +261,15 @@ export default function Header() {
                         <Calculator className="ml-2 h-4 w-4" />
                         מחשבון ריבית דריבית
                       </Button>
-                    </Link>
+                    </a>
 
-                    <Link href="/special-offer" className="w-full">
+                    <a
+                      href="/special-offer"
+                      className="w-full"
+                      onClick={closeSheet}
+                    >
+                      {" "}
+                      {/* Add onClick */}
                       <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white justify-start shadow-md hover:shadow-lg transition-all duration-200 relative">
                         <Star className="ml-2 h-4 w-4" />
                         הצעה מיוחדת
@@ -257,7 +280,7 @@ export default function Header() {
                           חדש
                         </Badge>
                       </Button>
-                    </Link>
+                    </a>
                   </div>
                 </div>
               </div>
