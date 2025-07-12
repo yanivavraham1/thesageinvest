@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react"; // Import useState
 
 import { Button } from "@/components/ui/button";
