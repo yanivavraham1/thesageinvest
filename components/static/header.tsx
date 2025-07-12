@@ -109,7 +109,7 @@ export default function Header() {
                     </div>
                     {categories.map((category) => (
                       <NavigationMenuLink key={category.href} asChild>
-                        <a
+                        <Link
                           href={category.href}
                           className="group grid h-auto w-full items-start gap-2 rounded-md bg-background p-3 text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none hover:shadow-sm"
                         >
@@ -119,7 +119,7 @@ export default function Header() {
                           <div className="text-xs text-muted-foreground text-right line-clamp-2">
                             {category.description}
                           </div>
-                        </a>
+                        </Link>
                       </NavigationMenuLink>
                     ))}
                   </div>
@@ -129,7 +129,7 @@ export default function Header() {
           </NavigationMenu>
 
           {/* Improved CTA buttons with better visual hierarchy */}
-          <a href="/tools/compound-interest-calculator">
+          <Link href="/tools/compound-interest-calculator">
             <Button
               variant="outline"
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
@@ -137,9 +137,9 @@ export default function Header() {
               <Calculator className="ml-2 h-4 w-4" />
               מחשבון ריבית דריבית
             </Button>
-          </a>
+          </Link>
 
-          <a href="/special-offer">
+          <Link href="/special-offer">
             <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 relative">
               <Star className="ml-2 h-4 w-4" />
               הצעה מיוחדת
@@ -150,7 +150,7 @@ export default function Header() {
                 חדש
               </Badge>
             </Button>
-          </a>
+          </Link>
         </div>
 
         {/* Improved Mobile Navigation */}
@@ -227,7 +227,7 @@ export default function Header() {
                     </div>
                     <CollapsibleContent className="space-y-2 pr-4 animate-in slide-in-from-top-1 duration-200">
                       {categories.map((category) => (
-                        <a
+                        <Link
                           key={category.href}
                           href={category.href}
                           className="block p-3 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 border-r-2 border-transparent hover:border-blue-500"
@@ -239,7 +239,7 @@ export default function Header() {
                           <div className="text-xs text-muted-foreground text-right mt-1">
                             {category.description}
                           </div>
-                        </a>
+                        </Link>
                       ))}
                     </CollapsibleContent>
                   </Collapsible>
@@ -249,7 +249,7 @@ export default function Header() {
 
                   {/* Special Buttons */}
                   <div className="space-y-3 flex flex-col gap-2">
-                    <a
+                    <Link
                       href="/tools/compound-interest-calculator"
                       className="w-full"
                       onClick={closeSheet} // Add onClick
@@ -261,9 +261,9 @@ export default function Header() {
                         <Calculator className="ml-2 h-4 w-4" />
                         מחשבון ריבית דריבית
                       </Button>
-                    </a>
+                    </Link>
 
-                    <a
+                    <Link
                       href="/special-offer"
                       className="w-full"
                       onClick={closeSheet}
@@ -280,7 +280,7 @@ export default function Header() {
                           חדש
                         </Badge>
                       </Button>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
