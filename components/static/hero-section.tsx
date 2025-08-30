@@ -43,7 +43,7 @@ export function HeroSection({
             {paragraph}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/posts" passHref>
+            <Link href="/articles" passHref>
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white hover:opacity-90 transition-opacity"
