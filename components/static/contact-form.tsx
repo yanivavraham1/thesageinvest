@@ -45,7 +45,7 @@ export default function ContactForm() {
 
     fetch(scriptURL, { method: "POST", body: formData })
       .then(() => {
-        window.location.href = "/meitav/success";
+        window.location.href = "/special-offer/success";
         // Clear form (this will only execute if the redirect fails)
         setFormData({
           firstName: "",
